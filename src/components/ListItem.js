@@ -1,10 +1,33 @@
 import React, { Component } from 'react';
-import { Text, TouchableWithoutFeedback, View } from 'react-native';
+import { 
+	Text, 
+	TouchableWithoutFeedback, 
+	View,
+	NativeModules,
+	LayoutAnimation
+} from 'react-native';
 import { CardSection } from './common';
 import { connect } from 'react-redux';
 import * as actions from '../actions';
 
+NativeModules.UIManager.setLayoutAnimationEnabledExperimental
+    && NativeModules.UIManager.setLayoutAnimationEnabledExperimental(true)
+
 class ListItem extends Component {
+
+	componentWillUpdate(){
+		LayoutAnimation.spring();
+	}
+
+	renderDescription() {
+		if(this.props.expanded) {
+			return (
+				<CardSection>
+					<Text>{this.props.library.description}</Text>
+				</CardSection>
+			);
+		}
+	}
 
 	render() {
 		return (
@@ -15,6 +38,7 @@ class ListItem extends Component {
 					<CardSection>
 						<Text style={styles.titleStyle}>{this.props.library.title}</Text>
 					</CardSection>
+					{this.renderDescription()}
 				</View>
 			</TouchableWithoutFeedback>
 		);
@@ -28,4 +52,10 @@ const styles = {
 	}
 }
 
-export default connect(null, actions)(ListItem);
+const mapStateToProps = (state, ownProps) => {
+	const expanded = state.selectedLibraryId === ownProps.library.id;
+
+	return { expanded: expanded };
+}
+
+export default connect(mapStateToProps, actions)(ListItem);
